@@ -1,0 +1,115 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  name       String
+  email      String      @unique
+  password   String
+  createdAt  DateTime    @default(now())
+  posts      Post[]
+  role       Role        @default(USER)
+  userMovies UserMovie[]
+  ratings    Rating[]
+  reviews Review[]
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime  @default(now())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  tags      PostTag[]
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String
+  posts PostTag[]
+}
+
+model PostTag {
+  postId Int
+  tagId  Int
+  post   Post @relation(fields: [postId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+}
+
+model Movie {
+  id          Int         @id @default(autoincrement())
+  title       String
+  synopsis    String
+  posterUrl   String?
+  releaseYear DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
+  genres      Genre[]     @relation("MovieGenres")
+  userMovies  UserMovie[]
+  ratings     Rating[]
+  reviews     Review[]
+}
+
+enum UserMovieStatus {
+  WATCHLIST
+  WATCHED
+  FAVORITE
+}
+
+model UserMovie {
+  id        Int             @id @default(autoincrement())
+  userId    Int
+  movieId   Int
+  status    UserMovieStatus
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  movie Movie @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId, status])
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  movieId   Int
+  value     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  movie Movie @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId])
+}
+
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  movies Movie[] @relation("MovieGenres")
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  userId Int
+  movieId Int
+  content String
+  user User @relation(fields: [userId], references: [id])
+  movie Movie @relation(fields: [movieId], references: [id])
+}
