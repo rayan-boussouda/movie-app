@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import userRoutes from './routes/user.routes';
 import postRoutes from './routes/posts.routes';
 import tagsRoutes from './routes/tags.routes';
@@ -19,6 +20,7 @@ app.use((req, _res, next) => {
   });
   next();
 });
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/posts', postRoutes);

@@ -7,10 +7,10 @@ export const Genre = () => {
   if (isLoading) return <p> loading...</p>;
   if (isError) return <p> error...</p>;
   return (
-    <>
+    <div className="flex gap-2 flex-wrap">
       {data?.map((genre) => (
         <Tag key={genre.id} name={genre.name} />
       ))}
-    </>
+    </div>
   );
 };
