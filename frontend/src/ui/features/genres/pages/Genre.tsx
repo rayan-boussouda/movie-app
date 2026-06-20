@@ -1,6 +1,6 @@
-import { httpGenreGateway } from "../../../infra/genre/http-genre-gateway";
-import { Tag } from "../../components/tag";
-import { useGetGenre } from "./hooks/useGenre";
+import { httpGenreGateway } from "../../../../infra/genre/http-genre-gateway";
+import { Tag } from "../../../components/Tag";
+import { useGetGenre } from "../hooks/useGenre";
 
 export const Genre = () => {
   const { data, isLoading, isError } = useGetGenre(httpGenreGateway);
