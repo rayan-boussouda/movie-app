@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { Genre } from "../../../../../domain/genre";
+import type { Genre } from "@/domain/genre";
 import { useUpdateGenre, useDeleteGenre } from "../../hooks/useGenre";
-import { httpGenreGateway } from "../../../../../infra/genre/http-genre-gateway";
+import { httpGenreGateway } from "@/infra/genre/http-genre-gateway";
 
 export const GenreItem = ({ genre }: { genre: Genre }) => {
   const [editing, setEditing] = useState(false);

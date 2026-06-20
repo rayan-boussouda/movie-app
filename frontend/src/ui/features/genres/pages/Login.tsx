@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import {
   loginCredentialsSchema,
   type LoginCredentials,
-} from "../../../../domain/auth";
+} from "@/domain/auth";
 import { useLogin } from "../hooks/useAuth";
-import { httpAuthGateway } from "../../../../infra/auth/http-auth-gateway";
+import { httpAuthGateway } from "@/infra/auth/http-auth-gateway";
 
 export const Login = () => {
   const {

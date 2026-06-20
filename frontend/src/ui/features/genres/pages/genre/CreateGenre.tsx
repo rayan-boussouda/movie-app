@@ -2,10 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createGenreSchema,
   type CreateGenre,
-} from "../../../../../domain/genre";
+} from "@/domain/genre";
 import { useForm } from "react-hook-form";
 import { useCreateGenre } from "../../hooks/useGenre";
-import { httpGenreGateway } from "../../../../../infra/genre/http-genre-gateway";
+import { httpGenreGateway } from "@/infra/genre/http-genre-gateway";
 
 export const CreateGenreForm = () => {
   const {
