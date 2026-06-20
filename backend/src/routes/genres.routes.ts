@@ -6,7 +6,6 @@ import { createGenreSchema, updateGenreSchema } from '../schemas/genre.schemas';
 import { idParamSchema } from '../schemas/common.schemas';
 const router = Router();
 
-router.use(auth);
 router.get('/', genreController.getAllGenres);
 router.get('/:id', validate(idParamSchema), genreController.getGenreById);
 router.post(
