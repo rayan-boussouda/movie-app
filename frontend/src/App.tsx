@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { Genre } from "./ui/features/genres/pages/Genre";
+import { Genre } from "./ui/features/genres/pages/genre/Genre";
 import { Login } from "./ui/features/genres/pages/Login";
 
 function App() {
