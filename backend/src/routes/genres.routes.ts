@@ -10,15 +10,17 @@ router.get('/', genreController.getAllGenres);
 router.get('/:id', validate(idParamSchema), genreController.getGenreById);
 router.post(
   '/',
+  auth,
   requireRole('ADMIN'),
   validate(createGenreSchema),
   genreController.createGenre,
 );
 router.patch(
   '/:id',
+  auth,
   requireRole('ADMIN'),
   validate(updateGenreSchema),
   genreController.updateGenre,
 );
-router.delete('/:id', validate(idParamSchema), genreController.deleteGenre);
+router.delete('/:id', auth, validate(idParamSchema), genreController.deleteGenre);
 export default router;
