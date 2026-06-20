@@ -1,4 +1,4 @@
-import { httpGenreGateway } from "../../../../../infra/genre/http-genre-gateway";
+import { httpGenreGateway } from "@/infra/genre/http-genre-gateway";
 import { useGetGenre } from "../../hooks/useGenre";
 import { CreateGenreForm } from "./CreateGenre";
 import { GenreItem } from "./GenreItem";

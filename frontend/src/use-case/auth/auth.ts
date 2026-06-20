@@ -1,5 +1,5 @@
-import type { LoginCredentials } from "../../domain/auth";
-import type { AuthGateway } from "../../domain/auth.port";
+import type { LoginCredentials } from "@/domain/auth";
+import type { AuthGateway } from "@/domain/auth.port";
 
 export const builLogin =
   (gateway: AuthGateway) => async (credentials: LoginCredentials) => {

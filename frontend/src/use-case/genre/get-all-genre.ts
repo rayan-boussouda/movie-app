@@ -1,5 +1,5 @@
-import type { CreateGenre, Genre, UpdateGenre } from "../../domain/genre";
-import type { GenreGateway } from "../../domain/genre.port";
+import type { CreateGenre, Genre, UpdateGenre } from "@/domain/genre";
+import type { GenreGateway } from "@/domain/genre.port";
 
 export const buildGetAllGenres =
   (gateway: GenreGateway) => async (): Promise<Genre[]> => {

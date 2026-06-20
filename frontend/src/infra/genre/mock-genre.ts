@@ -1,4 +1,4 @@
-import type { GenreGateway } from "../../domain/genre.port";
+import type { GenreGateway } from "@/domain/genre.port";
 
 export const mockGenreGateway: GenreGateway = {
   getAll: async () => [{ id: 1, name: "Drama" }],

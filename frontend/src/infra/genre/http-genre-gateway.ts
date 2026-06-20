@@ -1,11 +1,11 @@
 import z from "zod";
-import type { GenreGateway } from "../../domain/genre.port";
-import { httpClient } from "../http-client";
+import type { GenreGateway } from "@/domain/genre.port";
+import { httpClient } from "@/infra/http-client";
 import {
   genreSchema,
   type CreateGenre,
   type UpdateGenre,
-} from "../../domain/genre";
+} from "@/domain/genre";
 
 export const httpGenreGateway: GenreGateway = {
   getAll: async () => {
