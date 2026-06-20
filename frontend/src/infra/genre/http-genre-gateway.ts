@@ -8,4 +8,8 @@ export const httpGenreGateway: GenreGateway = {
     const response = await httpClient.get("/genres");
     return z.array(genreSchema).parse(response.data);
   },
+  getById: async (id: number) => {
+    const response = await httpClient.get(`/genres/${id}`);
+    return genreSchema.parse(response.data);
+  },
 };

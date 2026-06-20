@@ -6,3 +6,10 @@ export const buildGetAllGenres =
     const genre = await gateway.getAll();
     return [...genre].sort((a, b) => a.name.localeCompare(b.name));
   };
+
+export const buildGetGenreById =
+  (gateway: GenreGateway) =>
+  async (id: number): Promise<Genre> => {
+    const genre = await gateway.getById(id);
+    return genre;
+  };

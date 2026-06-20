@@ -5,3 +5,7 @@ export const genreSchema = z.object({
   name: z.string(),
 });
 export type Genre = z.infer<typeof genreSchema>;
+
+export const createGenreSchema = z.object({
+  name: z.string(),
+});
