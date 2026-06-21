@@ -2,6 +2,7 @@ import { httpGenreGateway } from "@/infra/genre/http-genre-gateway";
 import { useGetGenre } from "../../hooks/useGenre";
 import { CreateGenreForm } from "./CreateGenre";
 import { GenreItem } from "./GenreItem";
+import { Button } from "@rayan.boussouda/ui-kit";
 
 export const Genre = () => {
   const { data, isLoading, isError } = useGetGenre(httpGenreGateway);
@@ -15,6 +16,7 @@ export const Genre = () => {
         ))}
       </div>
       <CreateGenreForm />
+      <Button />
     </div>
   );
 };
