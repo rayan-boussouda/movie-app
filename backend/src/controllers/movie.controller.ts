@@ -4,6 +4,9 @@ import {
   GetMoviesByPageSchema,
   SearchMovieSchema,
 } from '../schemas/movie.schemas';
+import { AppError } from '../midellewares/errorHandler';
+import { uploadImage } from '../services/upload.service';
+import prisma from '../config/prisma';
 export const createMovie = async (
   req: Request,
   res: Response,
@@ -85,6 +88,29 @@ export const getMoviesByPage = async (
     const { movies, total, totalPages, hasNext } =
       await movieService.getMoviesByPage(page, limit, sortBy, order, genreId);
     res.status(200).json({ movies, total, totalPages, hasNext });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadMoviePicture = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.file) throw new AppError('No file uploaded', 400);
+    const movieId = req.params.id;
+    const url = await uploadImage(
+      req.file.buffer,
+      'movies',
+      `movie-${movieId}`,
+    );
+    const movie = await prisma.movie.update({
+      where: { id: Number(req.params.id) },
+      data: { moviePictureUrl: url },
+    });
+    res.status(200).json({ avatarUrl: movie.moviePictureUrl });
   } catch (error) {
     next(error);
   }
