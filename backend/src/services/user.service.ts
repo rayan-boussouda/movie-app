@@ -1,5 +1,5 @@
-import prisma from "../config/prisma";
-import type { User, Prisma } from "@prisma/client"; // ✅ import types properly
+import prisma from '../config/prisma';
+import type { User, Prisma } from '@prisma/client'; // ✅ import types properly
 
 // Create a new user
 export const createUser = (data: Prisma.UserCreateInput): Promise<User> => {
