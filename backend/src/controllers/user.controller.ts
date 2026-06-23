@@ -1,5 +1,8 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as userService from '../services/user.service';
+import { AppError } from '../midellewares/errorHandler';
+import { uploadImage } from '../services/upload.service';
+import prisma from '../config/prisma';
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -39,5 +42,29 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.json({ message: 'User deleted' });
   } catch {
     res.status(404).json({ error: 'User not found' });
+  }
+};
+// export const uploadImage = (
+//   buffer: Buffer,
+//   folder: string,
+//   publicId: string,
+// ):
+
+export const uploadAvatar = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.userId;
+    if (!req.file) throw new AppError('No file uploaded', 400);
+    const url = await uploadImage(req.file.buffer, 'avatars', `user-${userId}`);
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: url },
+    });
+    res.status(201).json({ avatarUrl: user.avatarUrl });
+  } catch (error) {
+    next(error);
   }
 };

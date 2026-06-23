@@ -24,6 +24,7 @@ model User {
   userMovies UserMovie[]
   ratings    Rating[]
   reviews Review[]
+  avatarUrl String?
 }
 
 model Post {
