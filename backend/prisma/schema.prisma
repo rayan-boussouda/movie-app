@@ -64,6 +64,7 @@ model Movie {
   userMovies  UserMovie[]
   ratings     Rating[]
   reviews     Review[]
+  moviePictureUrl String?
 }
 
 enum UserMovieStatus {

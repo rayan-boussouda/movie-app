@@ -9,6 +9,7 @@ import {
 } from '../schemas/movie.schemas';
 import * as controller from '../controllers/movie.controller';
 import { idParamSchema } from '../schemas/common.schemas';
+import { uploadMiddleware } from '../midellewares/upload';
 
 const router = Router();
 
@@ -34,5 +35,10 @@ router.delete(
 router.get('/', validate(getMoviesByPageSchema), controller.getMoviesByPage);
 router.get('/search', validate(searchMovieSchema), controller.searchMovies);
 router.get('/:id', validate(idParamSchema), controller.getById);
-
+router.patch(
+  '/:id/poster',
+  requireRole('ADMIN'),
+  uploadMiddleware.single('poster'),
+  controller.uploadMoviePicture,
+);
 export default router;
