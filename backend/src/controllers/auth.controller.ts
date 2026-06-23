@@ -27,3 +27,31 @@ export const login = async (
     next(error);
   }
 };
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await AuthService.forgotPassword(req.body.email);
+    res
+      .status(200)
+      .json({ message: 'If this email exists, a reset link has been sent.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await AuthService.resetPassword(req.body.token, req.body.newPassword);
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
