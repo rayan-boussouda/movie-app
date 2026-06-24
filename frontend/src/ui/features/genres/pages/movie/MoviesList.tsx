@@ -10,8 +10,8 @@ export const MoviesList = () => {
     sortBy: "title",
     order: "asc",
   });
-  const { data } = useGetMovies(params, httpMoviesGateway);
-
+  const { data, isError, error } = useGetMovies(params, httpMoviesGateway);
+  if (isError) return <p> somehting went wrong</p>;
   return (
     <div className="max-w-xl mx-auto mt-10 px-4">
       <h1 className="text-2xl font-semibold mb-6">Movies</h1>
