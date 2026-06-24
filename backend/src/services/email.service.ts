@@ -17,4 +17,5 @@ export const sendPasswordResetEmail = async (
       <p>If you didn't request this, ignore this email.</p>
     `,
   });
+  // if (error) throw new Error(error.message);
 };

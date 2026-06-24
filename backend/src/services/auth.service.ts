@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { User, Prisma } from '@prisma/client';
 import { AppError } from '../midellewares/errorHandler';
 import jwt from 'jsonwebtoken';
+import { emailQueue } from '../queues/email.queue';
 import { sendPasswordResetEmail } from './email.service';
 
 export const register = async (data: Prisma.UserUncheckedCreateInput) => {
@@ -51,7 +52,11 @@ export const forgotPassword = async (email: string) => {
       update: { tokenHash, expiresAt: ONE_HOUR },
       create: { tokenHash, userId: user.id, expiresAt: ONE_HOUR },
     });
-    await sendPasswordResetEmail('rayanbsd@gmail.com', rawToken);
+    // await sendPasswordResetEmail('rayanbsd@gmail.com', rawToken);
+    await emailQueue.add('send-reset-email', {
+      to: 'rayanbsd@gmail.com',
+      resetLink: rawToken,
+    });
   }
 };
 
