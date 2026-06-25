@@ -6,6 +6,19 @@ import {
   UpdateMovieSchema,
 } from '../schemas/movie.schemas';
 import { AppError } from '../midellewares/errorHandler';
+import { getCache, invalidateCache, setCache } from './cache.service';
+
+const CACHE_TTL = Number(process.env.CACHE_TTL ?? 6000);
+
+export const buildMovieCacheKey = (
+  page: number,
+  limit: number,
+  sortBy: 'title' | 'releaseYear',
+  order: 'asc' | 'desc',
+  genreId?: number,
+) => {
+  return `movies:page:${page}:limit:${limit}:sortBy:${sortBy}:order:${order}${genreId ? `:genre:${genreId}` : ''}`;
+};
 
 export const createMovie = async (data: CreateMovieSchema): Promise<Movie> => {
   const { genres, ...rest } = data;
@@ -40,6 +53,7 @@ export const updateMovie = async (
     },
     include: { genres: true },
   });
+  await invalidateCache('movies:*');
   return movie;
 };
 
@@ -48,6 +62,7 @@ export const deleteMovie = async (movieId: number): Promise<Movie> => {
     const movieToDelete = await prisma.movie.delete({
       where: { id: movieId },
     });
+    await invalidateCache('movies:*');
     return movieToDelete;
   } catch (error) {
     if (
@@ -88,6 +103,14 @@ export const getMoviesByPage = async (
   totalPages: number;
   hasNext: boolean;
 }> => {
+  const cachedKey = buildMovieCacheKey(page, limit, sortBy, order, genreId);
+  const cached = await getCache<{
+    movies: Movie[];
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+  }>(cachedKey);
+  if (cached) return cached;
   const where = genreId ? { genres: { some: { id: genreId } } } : {};
 
   const [movies, total] = await prisma.$transaction([
@@ -96,13 +119,18 @@ export const getMoviesByPage = async (
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { [sortBy]: order },
+      include: { genres: true },
     }),
     prisma.movie.count({ where }),
   ]);
-  return {
+
+  const result = {
     movies,
     total,
     totalPages: Math.ceil(total / limit),
     hasNext: page < Math.ceil(total / limit),
   };
+
+  setCache(cachedKey, result, CACHE_TTL);
+  return result;
 };
