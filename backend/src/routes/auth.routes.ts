@@ -2,11 +2,17 @@ import { Router } from 'express';
 import * as controller from '../controllers/auth.controller';
 import { validate } from '../midellewares/validate';
 import { registerSchema, loginSchema } from '../schemas/auth.schemas';
+import { rateLimit } from '../midellewares/rate-limit';
 
 const router = Router();
 
 router.post('/register', validate(registerSchema), controller.register);
-router.post('/login', validate(loginSchema), controller.login);
+router.post(
+  '/login',
+  rateLimit(10, 60),
+  validate(loginSchema),
+  controller.login,
+);
 router.post('/forgot-password', controller.forgotPassword);
 router.post('/reset-password', controller.resetPassword);
 
