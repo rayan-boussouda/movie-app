@@ -46,6 +46,17 @@ services:
     volumes:
       - redis_data:/data
 
+  db_test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: node_postgres_crud_test
+    ports:
+      - '5433:5432'
+    tmpfs:
+      - /var/lib/postgresql/data
+
 volumes:
   postgres_data:
   redis_data:
