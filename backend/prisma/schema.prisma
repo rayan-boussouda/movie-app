@@ -66,6 +66,8 @@ model Movie {
   ratings     Rating[]
   reviews     Review[]
   moviePictureUrl String?
+  averageRating Float @default(0)
+  ratingCount   Int   @default(0)
 }
 
 enum UserMovieStatus {
