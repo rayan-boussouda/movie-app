@@ -5,15 +5,20 @@ import {
   UpdateRatingSchema,
 } from '../schemas/rating.schemas';
 import { AppError } from '../midellewares/errorHandler';
+import { ratingsQueue } from '../queues/rating.queue';
 
 export const createRating = async (
   userId: number,
   data: CreateRatingSchema,
 ): Promise<Rating> => {
   try {
-    return await prisma.rating.create({
+    const result = await prisma.rating.create({
       data: { userId, movieId: data.movieId, value: data.value },
     });
+    await ratingsQueue.add('agregate-rating', {
+      movieId: data.movieId,
+    });
+    return result;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002')
@@ -30,10 +35,14 @@ export const updateRating = async (
   data: UpdateRatingSchema,
 ): Promise<Rating> => {
   try {
-    return await prisma.rating.update({
+    const result = await prisma.rating.update({
       where: { id, userId },
       data: { value: data.value },
     });
+    await ratingsQueue.add('agregate-rating', {
+      movieId: result.movieId,
+    });
+    return result;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') throw new AppError('Rating not found', 404);
@@ -47,9 +56,13 @@ export const deleteRating = async (
   userId: number,
 ): Promise<Rating> => {
   try {
-    return await prisma.rating.delete({
+    const result = await prisma.rating.delete({
       where: { id, userId },
     });
+    await ratingsQueue.add('agregate-rating', {
+      movieId: result.movieId,
+    });
+    return result;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') throw new AppError('Rating not found', 404);
