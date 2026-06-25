@@ -1,5 +1,5 @@
 import z from 'zod';
-import { paginationSchema } from './common.schemas';
+import { idParamSchema, paginationSchema } from './common.schemas';
 
 export const createMovieSchema = z.object({
   body: z.object({
@@ -14,6 +14,7 @@ export const createMovieSchema = z.object({
 });
 
 export const updateMovieSchema = z.object({
+  params: idParamSchema.shape.params,
   body: createMovieSchema.shape.body.partial(),
 });
 

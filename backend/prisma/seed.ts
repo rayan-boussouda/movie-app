@@ -13,7 +13,7 @@ async function main() {
   await seedAdmin();
 
   // Sample — dev only
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'development') {
     await seedUsers();
     await seedMovies(); // depends on genres
     await seedUserMovies(); // depends on users + movies

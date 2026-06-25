@@ -65,7 +65,7 @@ export const deleteReview = async (
 
 export const getMovieReviews = async (movieId: number): Promise<Review[]> => {
   return await prisma.review.findMany({
-    where: { id: movieId },
+    where: { movieId },
     include: { user: { select: { id: true, name: true } } },
   });
 };
