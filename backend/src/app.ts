@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import userRoutes from './routes/user.routes';
 import postRoutes from './routes/posts.routes';
 import tagsRoutes from './routes/tags.routes';
@@ -10,6 +11,8 @@ import ratingRoutes from './routes/rating.routes';
 import reviewRoutes from './routes/review.routes';
 import userMovieRoutes from './routes/userMovie.routes';
 import { errorHandler } from './midellewares/errorHandler';
+import { swaggerSpec } from './config/swagger';
+
 const app = express();
 
 app.use((req, _res, next) => {
@@ -22,6 +25,7 @@ app.use((req, _res, next) => {
 });
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/tags', tagsRoutes);
