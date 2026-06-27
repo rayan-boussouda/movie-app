@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useGetMovies } from "../../hooks/useMovie";
 import { httpMoviesGateway } from "@/infra/movie/http-movie-gateway";
 import type { GetMoviesByPageParams } from "@/domain/movie";
+import { CreateMovieForm } from "./CreateMovie";
 
 export const MoviesList = () => {
   const [params, setParams] = useState<GetMoviesByPageParams>({
     page: 1,
     limit: 5,
     sortBy: "title",
-    order: "asc",
+    order: "desc",
   });
   const { data, isError, error } = useGetMovies(params, httpMoviesGateway);
   if (isError) return <p> somehting went wrong</p>;
@@ -50,6 +51,7 @@ export const MoviesList = () => {
           Next →
         </button>
       </div>
+      <CreateMovieForm />
     </div>
   );
 };
