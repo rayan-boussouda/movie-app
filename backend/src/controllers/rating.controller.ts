@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import * as ratingService from '../services/rating.service';
+import { invalidateCacheScan } from '../services/cache.service';
 
 export const createRating = async (
   req: Request,
@@ -11,6 +12,7 @@ export const createRating = async (
       Number(req.user?.userId),
       req.body,
     );
+    await invalidateCacheScan('movies:*');
     res.status(201).json(rating);
   } catch (error) {
     next(error);
@@ -28,6 +30,7 @@ export const updateRating = async (
       Number(req.user?.userId),
       req.body,
     );
+    await invalidateCacheScan('movies:*');
     res.status(200).json(rating);
   } catch (error) {
     next(error);

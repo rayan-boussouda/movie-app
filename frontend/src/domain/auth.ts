@@ -17,5 +17,6 @@ export type User = z.infer<typeof userSchema>;
 
 export const loginResponseSchema = z.object({
   token: z.string(),
+  user: userSchema,
 });
 export type LoginResponse = z.infer<typeof loginResponseSchema>;

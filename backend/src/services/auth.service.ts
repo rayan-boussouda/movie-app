@@ -34,7 +34,10 @@ export const login = async (email: string, password: string) => {
       expiresIn: '1d',
     },
   );
-  return { token };
+  return {
+    token,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+  };
 };
 
 const ONE_HOUR = new Date(Date.now() + 60 * 60 * 1000);

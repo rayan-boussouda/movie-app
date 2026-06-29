@@ -12,8 +12,8 @@ import { builUploadMoviePicture } from "@/use-case/genre/movie";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const CreateMovieForm = () => {
-  const { mutate: createMovie } = useCreateMovie(httpMoviesGateway);
-  const { mutate: uploadMoviePicture } =
+  const { mutateAsync: createMovie } = useCreateMovie(httpMoviesGateway);
+  const { mutateAsync: uploadMoviePicture } =
     useUploadMoviePicture(httpMoviesGateway);
   const { data: genres } = useGetGenre(httpGenreGateway);
   const {
@@ -35,23 +35,12 @@ export const CreateMovieForm = () => {
   const [posterFile, setPosterFile] = useState<File>();
   const queryClient = useQueryClient();
 
-  const onSubmit = (data: CreateMovie) => {
-    createMovie(data, {
-      onSuccess: (movie) => {
-        if (posterFile) {
-          uploadMoviePicture(
-            { id: movie.id, file: posterFile },
-            {
-              onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["getMovies"] });
-              },
-            },
-          );
-        } else {
-          queryClient.invalidateQueries({ queryKey: ["getMovies"] });
-        }
-      },
-    });
+  const onSubmit = async (data: CreateMovie) => {
+    const movie = await createMovie(data);
+    if (posterFile) {
+      await uploadMoviePicture({ id: movie.id, file: posterFile });
+    }
+    queryClient.invalidateQueries({ queryKey: ["getMovies"] });
   };
 
   const inputCss =

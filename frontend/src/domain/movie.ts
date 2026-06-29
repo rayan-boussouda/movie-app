@@ -1,5 +1,6 @@
 import z from "zod";
 import { genreSchema } from "@/domain/genre";
+import { embeddedRatingSchema } from "@/domain/rating";
 
 // ── Response shape (what the API returns) ────────────────────────────────────
 export const movieSchema = z.object({
@@ -12,6 +13,7 @@ export const movieSchema = z.object({
   averageRating: z.number(),
   ratingCount: z.number(),
   genres: z.array(genreSchema),
+  ratings: z.array(embeddedRatingSchema).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

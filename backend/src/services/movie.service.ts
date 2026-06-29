@@ -119,7 +119,7 @@ export const getMoviesByPage = async (
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { [sortBy]: order },
-      include: { genres: true },
+      include: { genres: true, ratings: { select: { id: true, userId: true, value: true } } },
     }),
     prisma.movie.count({ where }),
   ]);
