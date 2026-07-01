@@ -144,10 +144,10 @@ Ref: UserMovie.movieId > Movie.id
 
 Ref: Rating.userId > User.id
 
-Ref: Rating.movieId > Movie.id
+Ref: Rating.movieId > Movie.id [delete: Cascade]
 
 Ref: Review.userId > User.id
 
-Ref: Review.movieId > Movie.id
+Ref: Review.movieId > Movie.id [delete: Cascade]
 
 Ref: PasswordResetToken.userId - User.id
