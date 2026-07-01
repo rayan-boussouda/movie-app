@@ -18,3 +18,8 @@ export const builUploadMoviePicture =
     const moviePicture = await movieGateway.uploadMoviePicture(id, file);
     return moviePicture;
   };
+
+export const buildDeleteMovie =
+  (movieGateway: MovieGateway) => async (id: number) => {
+    await movieGateway.deletMovie(id);
+  };

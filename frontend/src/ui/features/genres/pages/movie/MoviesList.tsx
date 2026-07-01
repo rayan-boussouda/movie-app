@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useGetMovies } from "../../hooks/useMovie";
+import { useCallback, useState } from "react";
+import { useDeleteMovie, useGetMovies } from "../../hooks/useMovie";
 import { httpMoviesGateway } from "@/infra/movie/http-movie-gateway";
 import type { GetMoviesByPageParams, Movie } from "@/domain/movie";
 import { CreateMovieForm } from "./CreateMovie";
@@ -7,20 +7,26 @@ import { useCreateRating, useUpdateRating } from "../../hooks/useRating";
 import { httpRatingGateway } from "@/infra/rating/http-rating-gateway";
 import { getCurrentUser } from "@/use-case/auth/auth";
 import type { EmbeddedRating } from "@/domain/rating";
+import { FormModal } from "@/ui/components/ModalGlobal";
+import { MovieCard } from "@rayan.boussouda/ui-kit";
+import { getDate } from "@/utils/getDate";
+import { toUpperCaseFirstCharacter } from "@/utils/toUpperCaseFirstCharacter";
 
 export const MoviesList = () => {
-  const [modal, setModal] = useState<boolean>(false);
+  const [modal, setModal] = useState<number | null>(null);
   const { mutate: createRating } = useCreateRating(httpRatingGateway);
   const { mutate: updateRating } = useUpdateRating(httpRatingGateway);
-
+  const { mutate: deleteMovie } = useDeleteMovie(httpMoviesGateway);
+  const [open, setOpen] = useState<boolean>(false);
   const [params, setParams] = useState<GetMoviesByPageParams>({
     page: 1,
-    limit: 5,
+    limit: 4,
     sortBy: "title",
     order: "desc",
   });
+  const [dummy, setDummy] = useState(0);
 
-  const { data, isError, error } = useGetMovies(params, httpMoviesGateway);
+  const { data, isError } = useGetMovies(params, httpMoviesGateway);
 
   const user = getCurrentUser();
   const handleRate = (num: number, movie: Movie) => {
@@ -32,44 +38,57 @@ export const MoviesList = () => {
     } else {
       createRating({ movieId: movie.id, value: num });
     }
-    setModal(false);
+    setModal(null);
   };
+
+  const handleEdit = useCallback((id: number) => {
+    console.log("salut", id);
+  }, []);
+
+  const handleDelete = useCallback(
+    (id: number) => {
+      deleteMovie(id);
+    },
+    [deleteMovie],
+  );
 
   if (isError) return <p> somehting went wrong</p>;
   return (
-    <div className="max-w-xl mx-auto mt-10 px-4">
+    <div className="realtive">
+      {dummy}
       <h1 className="text-2xl font-semibold mb-6">Movies</h1>
-      <ul className="space-y-2 mb-6">
-        {data?.movies.map((movie) => (
-          <div>
-            <div
-              onClick={() => setModal(true)}
-              className="w-5 h-5 border border-red-300 rounded-full text-green-300 transition-transform duration-200 hover:scale-110 flex items-center justify-center cursor-pointer"
-            >
-              {movie.averageRating}
-            </div>
-            <li
-              key={movie.id}
-              className="px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800"
-            >
-              {movie.title}
-            </li>
+      <button onClick={() => setDummy((d) => d + 1)}>re-render parent</button>
 
-            {modal && (
-              <div className="absolute bg-white border border-gray-200 rounded-lg shadow-lg p-3 flex gap-2">
-                {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
-                  <span
-                    key={num}
-                    className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer text-sm text-gray-700"
-                    onClick={() => handleRate(num, movie)}
-                  >
-                    {num}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+      <button
+        onClick={() => setOpen(true)}
+        className="absolute top-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full shadow-md hover:scale-110 transition-transform flex items-center justify-center text-xl"
+      >
+        +
+      </button>
+      <ul className="space-y-2 mb-6">
+        <div className="grid grid-cols-4 gap-2">
+          {data?.movies.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              id={movie.id}
+              genres={movie.genres.map((g) => g.name)}
+              overview={movie.synopsis}
+              rating={movie.averageRating}
+              posterUrl={
+                movie.posterUrl ??
+                "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba"
+              }
+              title={toUpperCaseFirstCharacter(movie.title)}
+              year={Number(getDate(movie.releaseYear, "year"))}
+              myRating={
+                movie.ratings?.find((r) => r.userId === user?.id)?.value
+              }
+              onRate={(num) => handleRate(num, movie)}
+              onEdit={user?.role === "ADMIN" ? handleEdit : undefined}
+              onDelete={user?.role === "ADMIN" ? handleDelete : undefined}
+            />
+          ))}
+        </div>
       </ul>
       <div className="flex items-center justify-between">
         <button
@@ -95,7 +114,16 @@ export const MoviesList = () => {
         </button>
       </div>
 
-      <CreateMovieForm />
+      <FormModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Create Movie"
+      >
+        <CreateMovieForm
+          onSuccess={() => setOpen(false)}
+          onCancel={() => setOpen(false)}
+        />
+      </FormModal>
     </div>
   );
 };

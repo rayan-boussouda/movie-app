@@ -26,4 +26,7 @@ export const httpMoviesGateway: MovieGateway = {
 
     return data;
   },
+  deletMovie: async (id: number) => {
+    await httpClient.delete(`/movies/${id}`);
+  },
 };

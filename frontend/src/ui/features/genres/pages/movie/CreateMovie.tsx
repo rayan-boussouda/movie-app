@@ -7,11 +7,17 @@ import { useGetGenre } from "../../hooks/useGenre";
 import { httpGenreGateway } from "@/infra/genre/http-genre-gateway";
 import Select from "react-select";
 import { toSelectOptions } from "@/utils/toSelectOptions";
-import { useState } from "react";
-import { builUploadMoviePicture } from "@/use-case/genre/movie";
+import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Button, Input } from "@rayan.boussouda/ui-kit";
 
-export const CreateMovieForm = () => {
+export const CreateMovieForm = ({
+  onSuccess,
+  onCancel,
+}: {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}) => {
   const { mutateAsync: createMovie } = useCreateMovie(httpMoviesGateway);
   const { mutateAsync: uploadMoviePicture } =
     useUploadMoviePicture(httpMoviesGateway);
@@ -19,8 +25,6 @@ export const CreateMovieForm = () => {
   const {
     register,
     handleSubmit,
-    setValue,
-    getValues,
     control,
     formState: { errors },
   } = useForm<CreateMovie>({
@@ -33,6 +37,8 @@ export const CreateMovieForm = () => {
     },
   });
   const [posterFile, setPosterFile] = useState<File>();
+  const [posterName, setPosterName] = useState<string>();
+  const fileRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const onSubmit = async (data: CreateMovie) => {
@@ -41,71 +47,93 @@ export const CreateMovieForm = () => {
       await uploadMoviePicture({ id: movie.id, file: posterFile });
     }
     queryClient.invalidateQueries({ queryKey: ["getMovies"] });
+    onSuccess?.();
   };
 
-  const inputCss =
-    "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500";
-  const inputSelect =
-    "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500";
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit, (errors) =>
-        console.log("validation errors", errors),
-      )}
-    >
-      <input
-        {...register("title")}
-        type="text"
-        placeholder="Title"
-        className={inputCss}
-      />
-      {errors.title && <p>{errors.title.message}</p>}
-      <input
-        {...register("synopsis")}
-        type="text"
-        placeholder="synopsis"
-        className={inputCss}
-      />
-      {errors.synopsis && <p>{errors.synopsis.message}</p>}
-      <input
-        {...register("releaseYear")}
-        type="date"
-        placeholder="release year"
-        className={inputCss}
-      />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) setPosterFile(file);
-        }}
-      />
+    <div className="">
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) =>
+          console.log("validation errors", errors),
+        )}
+      >
+        <div className="flex flex-col gap-4">
+        <Input
+          {...register("title")}
+          type="text"
+          placeholder="Title"
+          error={errors.title?.message}
+        />
 
-      {errors.releaseYear && <p>{errors.releaseYear.message}</p>}
+        <Input
+          {...register("synopsis")}
+          type="text"
+          placeholder="Synopsis"
+          error={errors.title?.message}
+        />
 
-      <Controller
-        control={control}
-        name="genres"
-        render={({ field }) => {
-          const selectedIds = field?.value?.map((g) => g.genreId) ?? [];
-          return (
-            <Select
-              isMulti
-              options={toSelectOptions(genres ?? [])}
-              value={toSelectOptions(genres ?? []).filter((option) => {
-                return selectedIds?.includes(option.value);
-              })}
-              onChange={(selected) => {
-                field.onChange(selected.map((g) => ({ genreId: g.value })));
-              }}
-              className="basic-multi-select"
-              classNamePrefix="select"
-            />
-          );
-        }}
-      />
-      <button type="submit">Create Movie</button>
-    </form>
+        <Input
+          {...register("releaseYear")}
+          type="date"
+          label="Release Year"
+          error={errors.releaseYear?.message}
+        />
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              setPosterFile(file);
+              setPosterName(file.name);
+            }
+          }}
+        />
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileRef.current?.click()}
+          >
+            Choose poster
+          </Button>
+          <span className="text-sm text-neutral-500">
+            {posterName ?? "No file chosen"}
+          </span>
+        </div>
+        {errors.releaseYear && <p>{errors.releaseYear.message}</p>}
+        <Controller
+          control={control}
+          name="genres"
+          render={({ field }) => {
+            const selectedIds = field?.value?.map((g) => g.genreId) ?? [];
+            return (
+              <Select
+                isMulti
+                options={toSelectOptions(genres ?? [])}
+                value={toSelectOptions(genres ?? []).filter((option) => {
+                  return selectedIds?.includes(option.value);
+                })}
+                onChange={(selected) => {
+                  field.onChange(selected.map((g) => ({ genreId: g.value })));
+                }}
+                className="basic-multi-select"
+                classNamePrefix="select"
+              />
+            );
+          }}
+        />
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="outline" type="button" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">Create Movie</Button>
+        </div>
+      </form>
+    </div>
   );
 };
