@@ -1,6 +1,5 @@
-import type { CreateMovie, GetMoviesByPageParams, Movie } from "@/domain/movie";
+import type { GetMoviesByPageParams } from "@/domain/movie";
 import type { MovieGateway } from "@/domain/movie.port";
-import { httpMoviesGateway } from "@/infra/movie/http-movie-gateway";
 import {
   buildCreateMovie,
   buildDeleteMovie,

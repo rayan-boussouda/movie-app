@@ -18,7 +18,7 @@ type ModalState =
   | { mode: "edit"; movie: Movie };
 
 export const MoviesList = () => {
-  const [modal, setModal] = useState<number | null>(null);
+  const [, setModal] = useState<number | null>(null);
   const [modalState, setModalState] = useState<ModalState>({ mode: "closed" });
   const { mutate: createRating } = useCreateRating(httpRatingGateway);
   const { mutate: updateRating } = useUpdateRating(httpRatingGateway);
