@@ -11,7 +11,11 @@ async function main() {
   // Reference — always
   await seedGenres();
   await seedAdmin();
-
+  await seedUsers();
+  await seedMovies(); // depends on genres
+  await seedUserMovies(); // depends on users + movies
+  await seedRatings(); // depends on users + movies
+  await seedReviews(); // depends on users + movies
   // Sample — dev only
   if (process.env.NODE_ENV === 'development') {
     await seedUsers();
