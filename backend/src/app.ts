@@ -20,7 +20,11 @@ app.use((req, _res, next) => {
   });
   next();
 });
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(
+  cors({
+    origin: process.env.APP_URL,
+  }),
+);
 app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
