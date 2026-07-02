@@ -1,4 +1,4 @@
-import type { CreateMovie, GetMoviesByPageParams } from "@/domain/movie";
+import type { CreateMovie, GetMoviesByPageParams, UpdateMovie } from "@/domain/movie";
 import type { MovieGateway } from "@/domain/movie.port";
 
 export const buildGetMovies =
@@ -17,6 +17,13 @@ export const builUploadMoviePicture =
   async ({ id, file }: { id: number; file: File }) => {
     const moviePicture = await movieGateway.uploadMoviePicture(id, file);
     return moviePicture;
+  };
+
+export const buildUpdateMovie =
+  (movieGateway: MovieGateway) =>
+  async ({ id, data }: { id: number; data: UpdateMovie }) => {
+    const movie = await movieGateway.updateMovie(id, data);
+    return movie;
   };
 
 export const buildDeleteMovie =

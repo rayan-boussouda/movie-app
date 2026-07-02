@@ -5,6 +5,7 @@ import {
   buildCreateMovie,
   buildDeleteMovie,
   buildGetMovies,
+  buildUpdateMovie,
   builUploadMoviePicture,
 } from "@/use-case/genre/movie";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,6 +29,14 @@ export const useCreateMovie = (movieGateway: MovieGateway) => {
 export const useUploadMoviePicture = (movieGateway: MovieGateway) => {
   return useMutation({
     mutationFn: builUploadMoviePicture(movieGateway),
+  });
+};
+
+export const useUpdateMovie = (movieGateway: MovieGateway) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: buildUpdateMovie(movieGateway),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["getMovies"] }),
   });
 };
 

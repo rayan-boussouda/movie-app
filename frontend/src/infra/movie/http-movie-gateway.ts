@@ -5,6 +5,7 @@ import {
   paginatedMoviesSchema,
   type CreateMovie,
   type GetMoviesByPageParams,
+  type UpdateMovie,
 } from "@/domain/movie";
 
 export const httpMoviesGateway: MovieGateway = {
@@ -14,6 +15,10 @@ export const httpMoviesGateway: MovieGateway = {
   },
   createMovie: async (movie: CreateMovie) => {
     const response = await httpClient.post("/movies", movie);
+    return movieSchema.parse(response.data);
+  },
+  updateMovie: async (id: number, data: UpdateMovie) => {
+    const response = await httpClient.patch(`/movies/${id}`, data);
     return movieSchema.parse(response.data);
   },
   uploadMoviePicture: async (id: number, file: File) => {

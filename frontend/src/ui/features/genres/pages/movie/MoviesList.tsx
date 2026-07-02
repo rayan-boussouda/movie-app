@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { useDeleteMovie, useGetMovies } from "../../hooks/useMovie";
 import { httpMoviesGateway } from "@/infra/movie/http-movie-gateway";
 import type { GetMoviesByPageParams, Movie } from "@/domain/movie";
-import { CreateMovieForm } from "./CreateMovie";
 import { useCreateRating, useUpdateRating } from "../../hooks/useRating";
 import { httpRatingGateway } from "@/infra/rating/http-rating-gateway";
 import { getCurrentUser } from "@/use-case/auth/auth";
@@ -11,24 +10,33 @@ import { FormModal } from "@/ui/components/ModalGlobal";
 import { MovieCard } from "@rayan.boussouda/ui-kit";
 import { getDate } from "@/utils/getDate";
 import { toUpperCaseFirstCharacter } from "@/utils/toUpperCaseFirstCharacter";
+import { CreateAndUpdateMovieForm } from "./CreateAndUpdateMovie";
+
+type ModalState =
+  | { mode: "closed" }
+  | { mode: "create" }
+  | { mode: "edit"; movie: Movie };
 
 export const MoviesList = () => {
   const [modal, setModal] = useState<number | null>(null);
+  const [modalState, setModalState] = useState<ModalState>({ mode: "closed" });
   const { mutate: createRating } = useCreateRating(httpRatingGateway);
   const { mutate: updateRating } = useUpdateRating(httpRatingGateway);
   const { mutate: deleteMovie } = useDeleteMovie(httpMoviesGateway);
-  const [open, setOpen] = useState<boolean>(false);
   const [params, setParams] = useState<GetMoviesByPageParams>({
     page: 1,
     limit: 4,
     sortBy: "title",
     order: "desc",
   });
-  const [dummy, setDummy] = useState(0);
 
   const { data, isError } = useGetMovies(params, httpMoviesGateway);
-
   const user = getCurrentUser();
+
+  const handleClose = useCallback(() => {
+    setModalState({ mode: "closed" });
+  }, []);
+
   const handleRate = (num: number, movie: Movie) => {
     const existingRating = movie?.ratings?.find(
       (r: EmbeddedRating) => r.userId === user?.id,
@@ -41,9 +49,13 @@ export const MoviesList = () => {
     setModal(null);
   };
 
-  const handleEdit = useCallback((id: number) => {
-    console.log("salut", id);
-  }, []);
+  const handleEdit = useCallback(
+    (id: number) => {
+      const movie = data?.movies.find((m) => m.id === id);
+      if (movie) setModalState({ mode: "edit", movie });
+    },
+    [data?.movies],
+  );
 
   const handleDelete = useCallback(
     (id: number) => {
@@ -52,19 +64,22 @@ export const MoviesList = () => {
     [deleteMovie],
   );
 
-  if (isError) return <p> somehting went wrong</p>;
-  return (
-    <div className="realtive">
-      {dummy}
-      <h1 className="text-2xl font-semibold mb-6">Movies</h1>
-      <button onClick={() => setDummy((d) => d + 1)}>re-render parent</button>
+  if (isError) return <p>Something went wrong</p>;
 
-      <button
-        onClick={() => setOpen(true)}
-        className="absolute top-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full shadow-md hover:scale-110 transition-transform flex items-center justify-center text-xl"
-      >
-        +
-      </button>
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold">Movies</h1>
+        {user?.role === "ADMIN" && (
+          <button
+            onClick={() => setModalState({ mode: "create" })}
+            className="w-10 h-10 bg-blue-600 text-white rounded-full shadow-md hover:scale-110 transition-transform flex items-center justify-center text-xl"
+          >
+            +
+          </button>
+        )}
+      </div>
+
       <ul className="space-y-2 mb-6">
         <div className="grid grid-cols-4 gap-2">
           {data?.movies.map((movie) => (
@@ -90,6 +105,7 @@ export const MoviesList = () => {
           ))}
         </div>
       </ul>
+
       <div className="flex items-center justify-between">
         <button
           disabled={params.page === 1}
@@ -115,13 +131,14 @@ export const MoviesList = () => {
       </div>
 
       <FormModal
-        open={open}
-        onClose={() => setOpen(false)}
-        title="Create Movie"
+        open={modalState.mode !== "closed"}
+        onClose={handleClose}
+        title={modalState.mode === "edit" ? "Edit Movie" : "Create Movie"}
       >
-        <CreateMovieForm
-          onSuccess={() => setOpen(false)}
-          onCancel={() => setOpen(false)}
+        <CreateAndUpdateMovieForm
+          movie={modalState.mode === "edit" ? modalState.movie : undefined}
+          onSuccess={handleClose}
+          onCancel={handleClose}
         />
       </FormModal>
     </div>

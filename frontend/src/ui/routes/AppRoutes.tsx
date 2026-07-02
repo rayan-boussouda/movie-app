@@ -4,6 +4,7 @@ import { AppLayout } from "@/ui//layouts/AppLayout";
 import { AuthLayout } from "@/ui/layouts/AuthLayout";
 import { Login } from "../features/genres/pages/Login";
 import { Genre } from "../features/genres/pages/genre/Genre";
+import { MoviesList } from "../features/genres/pages/movie/MoviesList";
 
 export const AppRoutes = () => (
   <Routes>
@@ -12,8 +13,13 @@ export const AppRoutes = () => (
     </Route>
 
     <Route element={<AppLayout />}>
-      <Route path="/" element={<div>Movie App</div>} />
-      {/* <Route path="/movies" element={<MoviesList />} /> */}
+      <Route
+        path="/"
+        element={
+          <div>THIS IS A SIMPLE MOVIE APP TO PREPARE FOR INTERVIEWS</div>
+        }
+      />
+      <Route path="/movies" element={<MoviesList />} />
       <Route path="/genres" element={<Genre />} />
     </Route>
   </Routes>
