@@ -38,6 +38,7 @@ router.get('/:id', validate(idParamSchema), controller.getById);
 router.patch(
   '/:id/poster',
   requireRole('ADMIN'),
+  validate(updateMovieSchema),
   uploadMiddleware.single('poster'),
   controller.uploadMoviePicture,
 );

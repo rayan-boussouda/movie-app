@@ -1,0 +1,153 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment]
+  name String [not null]
+  email String [unique, not null]
+  password String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  posts Post [not null]
+  role Role [not null, default: 'USER']
+  userMovies UserMovie [not null]
+  ratings Rating [not null]
+  reviews Review [not null]
+  avatarUrl String
+  passwordResetToken PasswordResetToken
+}
+
+Table Post {
+  id Int [pk, increment]
+  title String [not null]
+  content String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  userId Int [not null]
+  user User [not null]
+  tags PostTag [not null]
+}
+
+Table Tag {
+  id Int [pk, increment]
+  name String [not null]
+  posts PostTag [not null]
+}
+
+Table PostTag {
+  postId Int [not null]
+  tagId Int [not null]
+  post Post [not null]
+  tag Tag [not null]
+
+  indexes {
+    (postId, tagId) [pk]
+  }
+}
+
+Table Movie {
+  id Int [pk, increment]
+  title String [not null]
+  synopsis String [not null]
+  posterUrl String
+  releaseYear DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  genres Genre [not null]
+  userMovies UserMovie [not null]
+  ratings Rating [not null]
+  reviews Review [not null]
+  moviePictureUrl String
+  averageRating Float [not null, default: 0]
+  ratingCount Int [not null, default: 0]
+}
+
+Table UserMovie {
+  id Int [pk, increment]
+  userId Int [not null]
+  movieId Int [not null]
+  status UserMovieStatus [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user User [not null]
+  movie Movie [not null]
+
+  indexes {
+    (userId, movieId, status) [unique]
+  }
+}
+
+Table Rating {
+  id Int [pk, increment]
+  userId Int [not null]
+  movieId Int [not null]
+  value Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user User [not null]
+  movie Movie [not null]
+
+  indexes {
+    (userId, movieId) [unique]
+  }
+}
+
+Table Genre {
+  id Int [pk, increment]
+  name String [unique, not null]
+  movies Movie [not null]
+}
+
+Table Review {
+  id Int [pk, increment]
+  userId Int [not null]
+  movieId Int [not null]
+  content String [not null]
+  user User [not null]
+  movie Movie [not null]
+}
+
+Table PasswordResetToken {
+  id Int [pk, increment]
+  userId Int [unique, not null]
+  tokenHash String [unique, not null]
+  expiresAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user User [not null]
+}
+
+Table MovieGenres {
+  genresId Int [ref: > Genre.id]
+  moviesId Int [ref: > Movie.id]
+}
+
+Enum Role {
+  USER
+  ADMIN
+}
+
+Enum UserMovieStatus {
+  WATCHLIST
+  WATCHED
+  FAVORITE
+}
+
+Ref: Post.userId > User.id
+
+Ref: PostTag.postId > Post.id
+
+Ref: PostTag.tagId > Tag.id
+
+Ref: UserMovie.userId > User.id
+
+Ref: UserMovie.movieId > Movie.id
+
+Ref: Rating.userId > User.id
+
+Ref: Rating.movieId > Movie.id [delete: Cascade]
+
+Ref: Review.userId > User.id
+
+Ref: Review.movieId > Movie.id [delete: Cascade]
+
+Ref: PasswordResetToken.userId - User.id

@@ -6,6 +6,7 @@ import {
 } from '../schemas/rating.schemas';
 import { AppError } from '../midellewares/errorHandler';
 import { ratingsQueue } from '../queues/rating.queue';
+import { invalidateCacheScan } from './cache.service';
 
 export const createRating = async (
   userId: number,

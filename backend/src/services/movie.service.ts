@@ -1,5 +1,5 @@
 import prisma from '../config/prisma';
-import { Movie, Prisma } from '@prisma/client';
+import { Movie } from '@prisma/client';
 import {
   CreateMovieSchema,
   SearchMovieSchema,
@@ -58,21 +58,11 @@ export const updateMovie = async (
 };
 
 export const deleteMovie = async (movieId: number): Promise<Movie> => {
-  try {
-    const movieToDelete = await prisma.movie.delete({
-      where: { id: movieId },
-    });
-    await invalidateCache('movies:*');
-    return movieToDelete;
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2025'
-    ) {
-      throw new AppError('Movie not found', 404);
-    }
-    throw error;
-  }
+  const movieToDelete = await prisma.movie.delete({
+    where: { id: movieId },
+  });
+  await invalidateCache('movies:*');
+  return movieToDelete;
 };
 
 export const getMovieById = async (movieId: number): Promise<Movie> => {
@@ -119,7 +109,7 @@ export const getMoviesByPage = async (
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { [sortBy]: order },
-      include: { genres: true },
+      include: { genres: true, ratings: { select: { id: true, userId: true, value: true } } },
     }),
     prisma.movie.count({ where }),
   ]);

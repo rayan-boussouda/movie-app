@@ -16,7 +16,6 @@ export const Genre = () => {
         ))}
       </div>
       <CreateGenreForm />
-      <Button />
     </div>
   );
 };

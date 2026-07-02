@@ -1,6 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import prisma from '../config/prisma';
+import { invalidateCacheScan } from '../services/cache.service';
 
 export const ratingWorker = new Worker(
   'ratings',
@@ -19,6 +20,8 @@ export const ratingWorker = new Worker(
           ratingCount: result._count,
         },
       });
+
+      await invalidateCacheScan('movies:*');
     }
   },
   { connection: redisConnection },

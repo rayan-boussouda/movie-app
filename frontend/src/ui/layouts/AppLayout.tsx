@@ -1,3 +1,4 @@
+import { getCurrentUser } from "@/use-case/auth/auth";
 import { Header, UserMenu } from "@rayan.boussouda/ui-kit";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -32,7 +33,7 @@ export const AppLayout = () => {
         links={links}
         rightSlot={
           <UserMenu
-            src={user?.avatarUrl ?? undefined}
+            src={"https://api.dicebear.com/7.x/avataaars/svg?seed=rayan"}
             name={user?.name}
             alt={user?.name}
             items={[
