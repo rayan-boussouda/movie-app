@@ -1,12 +1,11 @@
 import Redis from 'ioredis';
 
-export const redisConnection = {
-  host: process.env.REDIS_HOST ?? 'localhost',
-  port: Number(process.env.REDIS_PORT ?? 6379),
-  maxRetriesPerRequest: null, // still required by BullMQ
-};
+const redisUrl = process.env.REDIS_URL;
 
-export const redisClient = new Redis({
-  host: process.env.REDIS_HOST ?? 'localhost',
-  port: Number(process.env.REDIS_PORT ?? 6379),
-});
+export const redisConnection = redisUrl
+  ? { url: redisUrl, maxRetriesPerRequest: null as null }
+  : { host: process.env.REDIS_HOST ?? 'localhost', port: Number(process.env.REDIS_PORT ?? 6379), maxRetriesPerRequest: null as null };
+
+export const redisClient = redisUrl
+  ? new Redis(redisUrl)
+  : new Redis({ host: process.env.REDIS_HOST ?? 'localhost', port: Number(process.env.REDIS_PORT ?? 6379) });
