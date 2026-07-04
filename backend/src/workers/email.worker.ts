@@ -1,6 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import { sendPasswordResetEmail } from '../services/email.service';
+import { logger } from '../config/logger';
 
 type EmailJobData = { to: string; rawToken: string };
 
@@ -15,9 +16,9 @@ export const emailWorker = new Worker<EmailJobData>(
 );
 
 emailWorker.on('completed', (job: Job<EmailJobData>) => {
-  console.log(`Job ${job.id} completed`);
+  logger.info({ jobId: job.id }, 'Job completed');
 });
 
 emailWorker.on('failed', (job: Job<EmailJobData> | undefined, error: Error) => {
-  console.error(`Job ${job?.id} failed:`, error.message);
+  logger.error({ jobId: job?.id, err: error }, 'Job failed');
 });

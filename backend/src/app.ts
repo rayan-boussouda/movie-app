@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import cors from 'cors';
 import userRoutes from './routes/user.routes';
@@ -10,7 +11,11 @@ import ratingRoutes from './routes/rating.routes';
 import reviewRoutes from './routes/review.routes';
 import userMovieRoutes from './routes/userMovie.routes';
 import { errorHandler } from './midellewares/errorHandler';
+import pinoHttp from 'pino-http';
+import { logger } from './config/logger';
+
 const app = express();
+app.use(pinoHttp({ logger }));
 
 app.use((req, _res, next) => {
   Object.defineProperty(req, 'query', {
@@ -35,6 +40,11 @@ app.use('/genres', genreRoutes);
 app.use('/ratings', ratingRoutes);
 app.use('/reviews', reviewRoutes);
 app.use('/user-movies', userMovieRoutes);
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error — delete me after confirming');
+});
+Sentry.setupExpressErrorHandler(app);
+
 app.use(errorHandler);
 
 export default app;
