@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import './instrument';
 import app from './app';
 import './workers/email.worker';
 import './workers/rating.worker';
