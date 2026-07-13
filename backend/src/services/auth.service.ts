@@ -27,15 +27,30 @@ export const login = async (email: string, password: string) => {
   if (!valid) {
     throw new AppError('Invalid Credentials', 401);
   }
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     { userId: user.id, role: user.role },
     process.env.JWT_SECRET!,
     {
       expiresIn: '1d',
     },
   );
+
+  const rawRefreshToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto
+    .createHash('sha256')
+    .update(rawRefreshToken)
+    .digest('hex');
+  await prisma.refreshToken.create({
+    data: {
+      tokenHash,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    },
+  });
+
   return {
-    token,
+    rawRefreshToken,
+    accessToken,
     user: { id: user.id, name: user.name, email: user.email, role: user.role },
   };
 };
@@ -76,4 +91,62 @@ export const resetPassword = async (rawToken: string, newPassword: string) => {
     data: { password: hash },
   });
   await prisma.passwordResetToken.delete({ where: { tokenHash } });
+};
+
+export const logout = async (rawRefreshToken: string) => {
+  const tokenHash = crypto
+    .createHash('sha256')
+    .update(rawRefreshToken)
+    .digest('hex');
+
+  await prisma.refreshToken.delete({
+    where: { tokenHash },
+  });
+};
+
+export const refresh = async (rawRefreshToken: string) => {
+  const tokenHash = crypto
+    .createHash('sha256')
+    .update(rawRefreshToken)
+    .digest('hex');
+
+  const storedToken = await prisma.refreshToken.findUnique({
+    where: { tokenHash },
+  });
+
+  if (!storedToken || storedToken.expiresAt < new Date()) {
+    throw new AppError('Invalid or expired refresh token', 401);
+  }
+
+  // get user to put in new accessToken
+  const user = await prisma.user.findUnique({
+    where: { id: storedToken.userId },
+  });
+  if (!user) throw new AppError('User not found', 401);
+
+  // delete old token (rotation)
+  await prisma.refreshToken.delete({ where: { tokenHash } });
+
+  // create new tokens
+  const newRawRefreshToken = crypto.randomBytes(32).toString('hex');
+  const newTokenHash = crypto
+    .createHash('sha256')
+    .update(newRawRefreshToken)
+    .digest('hex');
+
+  await prisma.refreshToken.create({
+    data: {
+      tokenHash: newTokenHash,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const accessToken = jwt.sign(
+    { userId: user.id, role: user.role },
+    process.env.JWT_SECRET!,
+    { expiresIn: '15m' },
+  );
+
+  return { accessToken, newRawRefreshToken };
 };
